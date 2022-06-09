@@ -664,7 +664,7 @@ void Line_view(const string &data, std::ostream &result, struct data &res) {
                     buffer = "00000000";
                     binary_translate(buffer, res);
                 } else { // jump forward
-                    decimal_translate(info_line.jmp_length + 2, res);
+                    decimal_translate(info_line.jmp_length - 2, res);
 
                     buffer = "10010000";
                     for (int i = 0; i < 4; i++) {

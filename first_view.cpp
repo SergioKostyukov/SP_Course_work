@@ -97,10 +97,10 @@ void op1_view(string &word, struct data &res, bool &is_status_changed) {
                 res.first_operand -= 1;
                 info_line.segment.clear();
             }
-            if(info_line.segment == "ds" && word != "ebp" && word != "esp"){
+            if (info_line.segment == "ds" && word != "ebp" && word != "esp") {
                 res.first_operand -= 1;
                 info_line.segment.clear();
-            }else{
+            } else {
                 info_line.segment.clear();
             }
         } else if (info_line.command == "mov") res.first_operand += 4;
@@ -108,7 +108,9 @@ void op1_view(string &word, struct data &res, bool &is_status_changed) {
     } else if (word[word.size() - 1] == 'h') {
         if (res.segment == "CODE") res.first_operand += word.size() / 2;
     } else if (word[word.size() - 1] == 'b') {
-        if (res.segment == "CODE") res.first_operand += (word.size() + 4) / 8;
+        if (res.segment == "CODE") {
+            if(res.label == "") res.first_operand += (word.size() + 4) / 8;
+        }
     } else if (isdigit(word[0]) || word[0] == '-') {
         if (res.is_op1_brackets) res.first_operand += 1;
         else if (res.labels.find(res.label) != res.labels.end()
@@ -119,17 +121,17 @@ void op1_view(string &word, struct data &res, bool &is_status_changed) {
         info_line.size = 0;
         res.first_operand += (word.size() - 2);
     } else {
-        res.labels[word].count++;
+        //res.labels[word].count++;
         res.label = word;
         if (info_line.command == "jmp") {
-            if (res.labels[word].count > 1 || info_line.mod == "short") {
+            if (res.labels[word].count >= 1 || info_line.mod == "short") {
                 res.first_operand += 1;
             } else {
                 info_line.size += 1;
                 res.first_operand += 4;
             }
         } else if (info_line.command == "jbe") {
-            if (res.labels[word].count > 1) {
+            if (res.labels[word].count >= 1) {
                 res.first_operand += 1;
             } else {
                 info_line.size += 1;
@@ -156,7 +158,7 @@ void op2_view(string &word, struct data &res) {
         if (res.segment == "CODE" && word != "cs" || res.segment == "DATA" && word != "ds") {
             info_line.segment = word;
         }
-    }else if (word == "ah" || word == "al" || word == "ch" || word == "cl" ||
+    } else if (word == "ah" || word == "al" || word == "ch" || word == "cl" ||
                word == "dh" || word == "dl" || word == "bh" || word == "bl") {
         if (res.is_op2_brackets) res.errors++;
         else if (res.is_op1_brackets) res.second_operand = 0;
@@ -170,10 +172,10 @@ void op2_view(string &word, struct data &res) {
                 res.second_operand -= 1;
                 info_line.segment.clear();
             }
-            if(info_line.segment == "ds" && word != "ebp" && word != "esp"){
+            if (info_line.segment == "ds" && word != "ebp" && word != "esp") {
                 res.first_operand -= 1;
                 info_line.segment.clear();
-            }else{
+            } else {
                 info_line.segment.clear();
             }
         } else if (res.is_op1_brackets) res.second_operand = 0;
@@ -181,23 +183,23 @@ void op2_view(string &word, struct data &res) {
     } else if (word[word.size() - 1] == 'h') {
         res.second_operand += word.size() / 2;
     } else if (word[word.size() - 1] == 'b') {
-        res.second_operand += (word.size() + 4) / 8;
+        if(res.label == "") res.first_operand += (word.size() + 4) / 8;
     } else if (isdigit(word[0]) || word[0] == '-') {
         res.second_operand += 1;
     } else if (word[word.size() - 1] == '\'') {
         res.second_operand += 1;
     } else {
-        res.labels[word].count++;
+        //res.labels[word].count++;
         if (res.labels[word].type == "CONST") res.second_operand += 1;
         else if (info_line.command == "jmp") {
-            if (res.labels[word].count > 1 || info_line.mod == "short") {
+            if (res.labels[word].count >= 1 || info_line.mod == "short") {
                 res.first_operand += 1;
             } else {
                 info_line.size += 1;
                 res.first_operand += 4;
             }
         } else if (info_line.command == "jbe") {
-            if (res.labels[word].count > 1) {
+            if (res.labels[word].count >= 1) {
                 res.first_operand += 1;
             } else {
                 info_line.size += 1;
